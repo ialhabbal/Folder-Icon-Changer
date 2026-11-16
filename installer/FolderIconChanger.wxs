@@ -1,0 +1,116 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+    Name="Folder Icon Changer"
+    Manufacturer="Folder Icon Changer"
+    Version="1.1.5"
+    ProductCode="{B93304A7-1923-487C-BC85-0B738037D7D1}"
+    UpgradeCode="{1D4B2D04-4906-4D29-9C36-1D0C76EE1A51}"
+    Scope="perMachine"
+    InstallerVersion="500"
+    Compressed="yes">
+
+    <SummaryInformation Description="Folder Icon Changer for Windows" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Folder Icon Changer is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+    <Icon Id="FolderIconChangerShortcutIcon" SourceFile="$(var.RepositoryRoot)\media\yellow_folder_mountain_logo_cutout.ico" />
+    <Property Id="ARPPRODUCTICON" Value="FolderIconChangerShortcutIcon" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Folder Icon Changer">
+        <Component Id="ApplicationFiles" Guid="{305F0A7A-2CF5-4A10-9C39-875A03DDFE0F}">
+          <File
+            Id="FolderIconChangerExecutable"
+            Source="$(var.PublishDir)\FolderIconChanger.exe"
+            KeyPath="yes" />
+          <File
+            Id="FolderIconChangerShellExtension"
+            Source="$(var.PublishDir)\FolderIconChanger.Shell.dll" />
+          <?if $(var.IncludeSparsePackage) = true ?>
+          <File
+            Id="FolderIconChangerSparsePackage"
+            Source="$(var.PublishDir)\FolderIconChanger.msix" />
+          <File
+            Id="FolderIconChangerPackageManager"
+            Source="$(var.RepositoryRoot)\scripts\ManageSparsePackage.ps1" />
+          <?endif?>
+          <File
+            Id="ThirdPartyNotices"
+            Source="$(var.RepositoryRoot)\THIRD-PARTY-NOTICES.md" />
+          <File
+            Id="ApacheLicense"
+            Source="$(var.RepositoryRoot)\licenses\Apache-2.0.txt" />
+          <File
+            Id="ImageMagickNotices"
+            Source="$(var.RepositoryRoot)\licenses\Magick.NET-Q8-x64-15.1.0-Notice.txt" />
+
+          <RegistryKey Root="HKLM" Key="Software\Classes\Directory\shell\FolderIconChanger">
+            <RegistryValue Name="MUIVerb" Type="string" Value="Change Folder Icon" />
+            <RegistryValue Name="Icon" Type="string" Value="[INSTALLFOLDER]FolderIconChanger.exe" />
+            <RegistryKey Key="command">
+              <RegistryValue
+                Type="string"
+                Value="&quot;[INSTALLFOLDER]FolderIconChanger.exe&quot; &quot;%1&quot;" />
+            </RegistryKey>
+          </RegistryKey>
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <?if $(var.IncludeSparsePackage) = true ?>
+    <CustomAction
+      Id="RegisterFolderIconChangerSparsePackage"
+      Directory="SystemFolder"
+      ExeCommand='powershell.exe -NoProfile -ExecutionPolicy Bypass -File "[INSTALLFOLDER]ManageSparsePackage.ps1" -Mode Install -PackageName "FolderIconChanger.Sparse" -PackageVersion "1.1.5.0" -PackagePath "[INSTALLFOLDER]FolderIconChanger.msix" -ExternalLocation "[INSTALLFOLDER]."'
+      Execute="deferred"
+      Impersonate="yes"
+      Return="check" />
+    <CustomAction
+      Id="UnregisterFolderIconChangerSparsePackage"
+      Directory="SystemFolder"
+      ExeCommand='powershell.exe -NoProfile -ExecutionPolicy Bypass -File "[INSTALLFOLDER]ManageSparsePackage.ps1" -Mode Uninstall -PackageName "FolderIconChanger.Sparse" -PackageVersion "1.1.5.0"'
+      Execute="deferred"
+      Impersonate="yes"
+      Return="check" />
+    <InstallExecuteSequence>
+      <Custom Action="RegisterFolderIconChangerSparsePackage" After="InstallFiles" Condition="NOT REMOVE" />
+      <Custom Action="UnregisterFolderIconChangerSparsePackage" Before="RemoveFiles" Condition="REMOVE~=&quot;ALL&quot;" />
+    </InstallExecuteSequence>
+    <?endif?>
+
+    <StandardDirectory Id="CommonAppDataFolder">
+      <Directory Id="CommonMicrosoftFolder" Name="Microsoft">
+        <Directory Id="CommonWindowsFolder" Name="Windows">
+          <Directory Id="CommonStartMenuFolder" Name="Start Menu">
+            <Directory Id="CommonProgramsFolder" Name="Programs">
+              <Directory Id="ApplicationProgramsFolder" Name="Folder Icon Changer">
+                <Component Id="StartMenuShortcut" Guid="{B404F339-9B9A-468C-BF2E-C2A908B7F312}">
+                  <Shortcut
+                    Id="FolderIconChangerStartMenuShortcut"
+                    Name="Folder Icon Changer"
+                    Description="Change or restore a folder's icon"
+                    Target="[INSTALLFOLDER]FolderIconChanger.exe"
+                    Icon="FolderIconChangerShortcutIcon"
+                    IconIndex="0"
+                    WorkingDirectory="INSTALLFOLDER" />
+                  <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
+                  <RegistryValue
+                    Root="HKLM"
+                    Key="Software\Folder Icon Changer"
+                    Name="StartMenuShortcut"
+                    Type="integer"
+                    Value="1"
+                    KeyPath="yes" />
+                </Component>
+              </Directory>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="MainFeature" Title="Folder Icon Changer" Level="1">
+      <ComponentRef Id="ApplicationFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+    </Feature>
+  </Package>
+</Wix>
