@@ -23,6 +23,8 @@ The standalone `dist\FolderIconChanger.exe` can also be run without installing. 
 
 Open **Folder Icon Changer** from the Start menu, or run the standalone executable. Browse to a folder, choose an image, check its preview, and select **Apply Folder Icon**. Use **Restore default icon** to remove the icon settings added by the app. If the folder had a custom icon before the change, that previous setting is restored.
 
+The window uses per-monitor DPI scaling for high-resolution displays. Field rows and the status line grow to fit scaled text, action buttons wrap when needed, and the preview uses the remaining space.
+
 Supported input includes PNG, JPEG, BMP, GIF (first frame), WebP, TIFF, ICO, and other raster formats supported by ImageMagick. The app uses the image contents rather than relying on the filename extension.
 
 ## Safety and file handling

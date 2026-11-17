@@ -47,8 +47,8 @@ internal sealed class MainForm : Form
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath)
             ?? throw new InvalidOperationException("The application icon could not be loaded.");
         StartPosition = FormStartPosition.CenterScreen;
-        MinimumSize = new Size(640, 630);
-        Size = new Size(720, 690);
+        MinimumSize = new Size(900, 850);
+        Size = new Size(1100, 1000);
         BackColor = PageColor;
         ForeColor = InkColor;
         Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
@@ -61,13 +61,12 @@ internal sealed class MainForm : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 3,
+            RowCount = 2,
             Padding = new Padding(28, 22, 28, 24),
             BackColor = PageColor
         };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 90));
+        root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
         Controls.Add(root);
 
         var heading = new TableLayoutPanel
@@ -75,16 +74,19 @@ internal sealed class MainForm : Form
             Dock = DockStyle.Fill,
             ColumnCount = 1,
             RowCount = 2,
-            Margin = Padding.Empty
+            Margin = Padding.Empty,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink
         };
-        heading.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
-        heading.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        heading.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        heading.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         heading.Controls.Add(new Label
         {
             Text = "Folder Icon Changer",
             Font = new Font("Segoe UI Semibold", 21F, FontStyle.Bold),
             ForeColor = InkColor,
             AutoSize = true,
+            TextAlign = ContentAlignment.MiddleCenter,
             Dock = DockStyle.Fill
         }, 0, 0);
         heading.Controls.Add(new Label
@@ -93,6 +95,7 @@ internal sealed class MainForm : Form
             Font = new Font("Segoe UI", 10F),
             ForeColor = MutedColor,
             AutoSize = true,
+            MaximumSize = new Size(880, 0),
             Dock = DockStyle.Fill
         }, 0, 1);
         root.Controls.Add(heading, 0, 0);
@@ -106,13 +109,13 @@ internal sealed class MainForm : Form
             BackColor = Color.White,
             Margin = new Padding(0, 10, 0, 0)
         };
-        card.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
-        card.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
-        card.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
-        card.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
+        card.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        card.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        card.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        card.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         card.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        card.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
-        card.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
+        card.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        card.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         root.Controls.Add(card, 0, 1);
 
         card.Controls.Add(CreateFieldLabel("Folder to customize"), 0, 0);
@@ -131,13 +134,14 @@ internal sealed class MainForm : Form
         {
             Dock = DockStyle.Fill,
             FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false,
+            WrapContents = true,
             Padding = new Padding(0, 4, 0, 0),
-            Margin = Padding.Empty
+            Margin = Padding.Empty,
+            AutoSize = true
         };
         _applyButton.Text = "Apply Folder Icon";
-        _applyButton.Width = 180;
-        _applyButton.Height = 40;
+        _applyButton.AutoSize = true;
+        _applyButton.MinimumSize = new Size(180, 40);
         _applyButton.BackColor = AccentColor;
         _applyButton.ForeColor = Color.White;
         _applyButton.FlatStyle = FlatStyle.Flat;
@@ -147,8 +151,8 @@ internal sealed class MainForm : Form
         buttons.Controls.Add(_applyButton);
 
         _restoreButton.Text = "Restore default icon";
-        _restoreButton.Width = 178;
-        _restoreButton.Height = 40;
+        _restoreButton.AutoSize = true;
+        _restoreButton.MinimumSize = new Size(178, 40);
         _restoreButton.Margin = new Padding(10, 0, 0, 0);
         _restoreButton.BackColor = Color.White;
         _restoreButton.ForeColor = InkColor;
@@ -158,8 +162,8 @@ internal sealed class MainForm : Form
         buttons.Controls.Add(_restoreButton);
 
         _thumbnailCacheButton.Text = "Rebuild";
-        _thumbnailCacheButton.Width = 154;
-        _thumbnailCacheButton.Height = 40;
+        _thumbnailCacheButton.AutoSize = true;
+        _thumbnailCacheButton.MinimumSize = new Size(154, 40);
         _thumbnailCacheButton.Margin = new Padding(10, 0, 0, 0);
         _thumbnailCacheButton.BackColor = Color.White;
         _thumbnailCacheButton.ForeColor = InkColor;
@@ -173,6 +177,7 @@ internal sealed class MainForm : Form
 
         _status.Text = "Your original folder settings are kept safe.";
         _status.ForeColor = MutedColor;
+        _status.AutoSize = true;
         _status.Dock = DockStyle.Fill;
         _status.TextAlign = ContentAlignment.MiddleLeft;
         _status.AutoEllipsis = true;
@@ -186,6 +191,7 @@ internal sealed class MainForm : Form
             Text = text,
             ForeColor = InkColor,
             Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold),
+            AutoSize = true,
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.MiddleLeft,
             Margin = Padding.Empty
@@ -199,10 +205,14 @@ internal sealed class MainForm : Form
             Dock = DockStyle.Fill,
             ColumnCount = 2,
             RowCount = 1,
-            Margin = Padding.Empty
+            Margin = Padding.Empty,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            MinimumSize = Size.Empty
         };
         row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        row.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 128));
+        row.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        row.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
         textBox.ReadOnly = true;
         textBox.Dock = DockStyle.Fill;
@@ -216,6 +226,8 @@ internal sealed class MainForm : Form
         {
             Text = buttonText,
             Dock = DockStyle.Fill,
+            AutoSize = true,
+            MinimumSize = new Size(96, 0),
             Margin = new Padding(0, 2, 0, 2),
             BackColor = Color.White,
             ForeColor = InkColor,
