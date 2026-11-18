@@ -92,7 +92,7 @@ function Build-ShellExtension {
         'call "' + $developerCommand + '" -arch=x64 -host_arch=x64 >nul && ' +
         'cd /d "' + $buildDirectory + '" && ' +
         'cl.exe /nologo /std:c++17 /EHsc /MD /W4 /WX /DUNICODE /D_UNICODE /LD "' +
-        $sourceFile + '" /link shell32.lib shlwapi.lib ole32.lib /DEF:"' +
+        $sourceFile + '" /link shell32.lib shlwapi.lib ole32.lib user32.lib /DEF:"' +
         $moduleDefinition + '" /OUT:"' +
         $outputFile + '"'
     )

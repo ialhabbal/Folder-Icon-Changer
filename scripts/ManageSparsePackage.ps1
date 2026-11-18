@@ -15,6 +15,28 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Refresh-ShellAssociations {
+    Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+
+public static class FolderIconChangerShellNotifications
+{
+    [DllImport("shell32.dll", ExactSpelling = true)]
+    public static extern void SHChangeNotify(
+        uint eventId,
+        uint flags,
+        IntPtr item1,
+        IntPtr item2);
+}
+"@
+    [FolderIconChangerShellNotifications]::SHChangeNotify(
+        0x08000000,
+        0,
+        [IntPtr]::Zero,
+        [IntPtr]::Zero)
+}
+
 if ($Mode -eq "Install") {
     if (-not (Test-Path -LiteralPath $PackagePath -PathType Leaf)) {
         throw "The signed context-menu package is missing."
@@ -33,6 +55,7 @@ if ($Mode -eq "Install") {
         -Path $PackagePath `
         -ExternalLocation $ExternalLocation `
         -ForceUpdateFromAnyVersion
+    Refresh-ShellAssociations
     return
 }
 
@@ -42,3 +65,5 @@ foreach ($installedPackage in $installedPackages) {
         Remove-AppxPackage -Package $installedPackage.PackageFullName
     }
 }
+
+Refresh-ShellAssociations

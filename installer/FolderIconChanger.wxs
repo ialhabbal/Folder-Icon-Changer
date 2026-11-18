@@ -2,8 +2,8 @@
   <Package
     Name="Folder Icon Changer"
     Manufacturer="Folder Icon Changer"
-    Version="1.1.5"
-    ProductCode="{B93304A7-1923-487C-BC85-0B738037D7D1}"
+    Version="1.1.7"
+    ProductCode="{DB147FBE-E541-4FA1-9270-3FCD45C4D1F6}"
     UpgradeCode="{1D4B2D04-4906-4D29-9C36-1D0C76EE1A51}"
     Scope="perMachine"
     InstallerVersion="500"
@@ -43,15 +43,10 @@
             Id="ImageMagickNotices"
             Source="$(var.RepositoryRoot)\licenses\Magick.NET-Q8-x64-15.1.0-Notice.txt" />
 
-          <RegistryKey Root="HKLM" Key="Software\Classes\Directory\shell\FolderIconChanger">
-            <RegistryValue Name="MUIVerb" Type="string" Value="Change Folder Icon" />
-            <RegistryValue Name="Icon" Type="string" Value="[INSTALLFOLDER]FolderIconChanger.exe" />
-            <RegistryKey Key="command">
-              <RegistryValue
-                Type="string"
-                Value="&quot;[INSTALLFOLDER]FolderIconChanger.exe&quot; &quot;%1&quot;" />
-            </RegistryKey>
-          </RegistryKey>
+          <RemoveRegistryKey
+            Root="HKLM"
+            Key="Software\Classes\Directory\shell\FolderIconChanger"
+            Action="removeOnInstall" />
         </Component>
       </Directory>
     </StandardDirectory>
@@ -60,14 +55,14 @@
     <CustomAction
       Id="RegisterFolderIconChangerSparsePackage"
       Directory="SystemFolder"
-      ExeCommand='powershell.exe -NoProfile -ExecutionPolicy Bypass -File "[INSTALLFOLDER]ManageSparsePackage.ps1" -Mode Install -PackageName "FolderIconChanger.Sparse" -PackageVersion "1.1.5.0" -PackagePath "[INSTALLFOLDER]FolderIconChanger.msix" -ExternalLocation "[INSTALLFOLDER]."'
+      ExeCommand='powershell.exe -NoProfile -ExecutionPolicy Bypass -File "[INSTALLFOLDER]ManageSparsePackage.ps1" -Mode Install -PackageName "FolderIconChanger.Sparse" -PackageVersion "1.1.7.0" -PackagePath "[INSTALLFOLDER]FolderIconChanger.msix" -ExternalLocation "[INSTALLFOLDER]."'
       Execute="deferred"
       Impersonate="yes"
       Return="check" />
     <CustomAction
       Id="UnregisterFolderIconChangerSparsePackage"
       Directory="SystemFolder"
-      ExeCommand='powershell.exe -NoProfile -ExecutionPolicy Bypass -File "[INSTALLFOLDER]ManageSparsePackage.ps1" -Mode Uninstall -PackageName "FolderIconChanger.Sparse" -PackageVersion "1.1.5.0"'
+      ExeCommand='powershell.exe -NoProfile -ExecutionPolicy Bypass -File "[INSTALLFOLDER]ManageSparsePackage.ps1" -Mode Uninstall -PackageName "FolderIconChanger.Sparse" -PackageVersion "1.1.7.0"'
       Execute="deferred"
       Impersonate="yes"
       Return="check" />

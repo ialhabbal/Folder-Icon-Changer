@@ -5,6 +5,7 @@
 #include <shellapi.h>
 #include <shlwapi.h>
 #include <atomic>
+#include <cwchar>
 #include <new>
 #include <string>
 
@@ -86,7 +87,7 @@ namespace
         return result;
     }
 
-    class FolderIconCommand final : public IExplorerCommand
+    class FolderIconCommand final : public IExplorerCommand, public IObjectWithSite
     {
     public:
         FolderIconCommand()
@@ -106,6 +107,13 @@ namespace
                 || IsEqualIID(interfaceId, IID_IExplorerCommand))
             {
                 *object = static_cast<IExplorerCommand*>(this);
+                AddRef();
+                return S_OK;
+            }
+
+            if (IsEqualIID(interfaceId, IID_IObjectWithSite))
+            {
+                *object = static_cast<IObjectWithSite*>(this);
                 AddRef();
                 return S_OK;
             }
@@ -180,6 +188,35 @@ namespace
             return S_OK;
         }
 
+        IFACEMETHODIMP SetSite(IUnknown* site) override
+        {
+            if (site != nullptr)
+            {
+                site->AddRef();
+            }
+
+            if (site_ != nullptr)
+            {
+                site_->Release();
+            }
+
+            site_ = site;
+            return S_OK;
+        }
+
+        IFACEMETHODIMP GetSite(REFIID interfaceId, void** object) override
+        {
+            if (object == nullptr)
+            {
+                return E_POINTER;
+            }
+
+            *object = nullptr;
+            return site_ != nullptr
+                ? site_->QueryInterface(interfaceId, object)
+                : E_FAIL;
+        }
+
         IFACEMETHODIMP GetState(
             IShellItemArray* items,
             BOOL,
@@ -191,6 +228,11 @@ namespace
             }
 
             *state = ECS_HIDDEN;
+            if (!ShouldShowInModernContextMenu())
+            {
+                return S_OK;
+            }
+
             PWSTR folderPath = nullptr;
             const HRESULT result = GetSelectedFolder(items, &folderPath);
             CoTaskMemFree(folderPath);
@@ -264,10 +306,42 @@ namespace
     private:
         ~FolderIconCommand()
         {
+            if (site_ != nullptr)
+            {
+                site_->Release();
+            }
+
             --ObjectCount;
         }
 
+        bool ShouldShowInModernContextMenu() const
+        {
+            if (site_ == nullptr)
+            {
+                return true;
+            }
+
+            IOleWindow* oleWindow = nullptr;
+            if (FAILED(site_->QueryInterface(IID_PPV_ARGS(&oleWindow))))
+            {
+                return true;
+            }
+
+            HWND window = nullptr;
+            const HRESULT result = oleWindow->GetWindow(&window);
+            oleWindow->Release();
+            if (FAILED(result) || window == nullptr)
+            {
+                return false;
+            }
+
+            wchar_t className[MAX_PATH] = {};
+            const int length = GetClassNameW(window, className, ARRAYSIZE(className));
+            return length > 0 && std::wcscmp(className, L"NamespaceTreeControl") == 0;
+        }
+
         std::atomic_ulong referenceCount_ = 1;
+        IUnknown* site_ = nullptr;
     };
 
     class FolderIconClassFactory final : public IClassFactory
